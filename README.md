@@ -1,4 +1,4 @@
-# appnotify_adm
+# InformaAI_ADM
 
 A new Flutter project.
 
