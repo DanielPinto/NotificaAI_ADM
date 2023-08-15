@@ -116,7 +116,7 @@ class _SelectedNotificationState extends State<SelectedNotification> {
   void send() async {
     InviteNotify invite = InviteNotify();
 
-    Response response;
+    int response;
 
     response = await invite.inviteNotify(
         id: item.id,
@@ -125,7 +125,7 @@ class _SelectedNotificationState extends State<SelectedNotification> {
         zones: item.zones,
         conditions: conditional);
 
-    if (response.statusCode == 200) {
+    if (response == 200) {
       if (!item.status) {
         updateStatus();
       }
@@ -133,7 +133,7 @@ class _SelectedNotificationState extends State<SelectedNotification> {
       showToast('Mensagem enviada');
     } else {
       showToast('Erro ao enviar a Mensagem!');
-      print(response.statusCode);
+      print(response);
     }
     //updateStatus();
   }

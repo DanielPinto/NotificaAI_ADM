@@ -1,5 +1,7 @@
+import 'package:appnotify_adm/pages/forgotPassword/forgot_password_page.dart';
 import 'package:appnotify_adm/pages/home_page.dart';
 import 'package:appnotify_adm/pages/login_page.dart';
+import 'package:appnotify_adm/pages/newPassword/new_password_page.dart';
 import 'package:appnotify_adm/pages/notificationsPage/notifications_page.dart';
 import 'package:appnotify_adm/pages/selectedNotification/selected_notification.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +12,8 @@ class Routes {
     '/login': (_) => const LoginPage(),
     '/home': (_) => const HomePage(),
     '/notificacao': (_) => const NotificationsPage(),
+    '/newPassword': (_) => const NewPasswordPage(),
+    '/forgotPassword': (_) => const ForgotPasswordPage(),
     '/selectedNotification': (_) => const SelectedNotification(
           item_id: '',
         ),

@@ -26,13 +26,21 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
   final String buttonTitle = "ENVIAR";
 
   post() {
-    widget.itemUpdate == null ? create() : update();
+    if (anyControllerClear()) {
+      showAlertDialogOK(context);
+    } else {
+      widget.itemUpdate == null ? create() : update();
+    }
+  }
+
+  bool anyControllerClear() {
+    return (titleController.text == "" ||
+        bodyController.text == "" ||
+        descriptionController.text == "");
   }
 
   update() async {
-    print("==== progress true ==========");
     setState(() {
-      print("==== progress true ==========");
       progress = true;
     });
     try {
@@ -53,8 +61,7 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
       });
     } on FirebaseException catch (e) {
       alert = "Erro: ${e.message} !";
-      print("==== ERRO CODe: ${e.code} ==========");
-      print("==== ERRO CODe: ${e.message} ==========");
+
       setState(() {
         progress = false;
       });
@@ -62,13 +69,10 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
   }
 
   create() async {
-    print("==== progress true ==========");
     setState(() {
-      print("==== progress true ==========");
       progress = true;
     });
     try {
-      print("==== criando o item ==========");
       Item item = Item(
           title: titleController.text,
           body: bodyController.text,
@@ -79,14 +83,11 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
           users: "",
           zones: []);
 
-      print("==== cadastrando na base ==========");
       DocumentReference doc =
           await widget.instanceNotifications.add(item.toJson());
 
-      print("==== pegou ID ==========");
       item.id = doc.id;
 
-      print("==== update ID ==========");
       await doc.update(item.toJson());
 
       setState(() {
@@ -95,8 +96,7 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
       });
     } on FirebaseException catch (e) {
       alert = "Erro: ${e.message} !";
-      print("==== ERRO CODe: ${e.code} ==========");
-      print("==== ERRO CODe: ${e.message} ==========");
+
       setState(() {
         progress = false;
       });
@@ -112,6 +112,53 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
       bodyController.text = widget.itemUpdate!.body;
       descriptionController.text = widget.itemUpdate!.description;
     }
+  }
+
+  showAlertDialogOK(BuildContext context) async {
+    // set up the buttons
+
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: TextStyle(color: Colors.greenAccent[700], fontSize: 18),
+      ),
+      onPressed: () {
+        setState(() {
+          Navigator.of(context).pop();
+        });
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      backgroundColor: Colors.amber[50],
+      title: const Text("Todos os campos devem estar preenchidos!"),
+      actionsAlignment: MainAxisAlignment.center,
+      icon: Icon(
+        Icons.warning_amber_outlined,
+        color: Colors.amberAccent[700],
+        size: 96,
+      ),
+      actions: [okButton],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void showToastFildClean(BuildContext context) {
+    final scaffold = ScaffoldMessenger.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: const Text('Campo Vazio!'),
+        action: SnackBarAction(
+            label: 'FECHAR', onPressed: scaffold.hideCurrentSnackBar),
+      ),
+    );
   }
 
   @override
