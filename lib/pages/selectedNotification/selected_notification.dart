@@ -6,6 +6,7 @@ import 'package:appnotify_adm/pages/notificationsPage/form_notifications_page.da
 import 'package:appnotify_adm/services/invite_notify.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -42,6 +43,7 @@ class _SelectedNotificationState extends State<SelectedNotification> {
 
   List<String> conditionals = [];
   String conditional = "";
+  String idTodas = "";
   late BuildContext contextPage;
 
   @override
@@ -63,6 +65,8 @@ class _SelectedNotificationState extends State<SelectedNotification> {
       await documents.get().then((value) {
         Zone zone = Zone.fromJson(value.data()!);
         zonesList.add(zone);
+        if (zone.sigla == "TODAS") idTodas = zone.id;
+        print("LEITURA de ZONE TODAS ${idTodas}");
       });
     }
     setState(() {});
@@ -82,8 +86,18 @@ class _SelectedNotificationState extends State<SelectedNotification> {
 
   changeZones(String zoneId) async {
     showAlertDialogProgress();
-    if (!item.zones.contains(zoneId)) {
+
+    if (!item.zones.contains(zoneId) && !item.zones.contains(idTodas)) {
+      if (zoneId == idTodas) {
+        item.zones.clear();
+      }
+
       item.zones.add(zoneId);
+
+      if (item.zones.length > 5) {
+        item.zones.clear();
+        item.zones.add(idTodas);
+      }
     } else {
       item.zones.remove(zoneId);
     }
@@ -98,6 +112,7 @@ class _SelectedNotificationState extends State<SelectedNotification> {
         readItem();
       },
     );
+    print("TODAS ZONAS: ${item.zones}");
   }
 
   void updateStatus() async {
@@ -164,11 +179,11 @@ class _SelectedNotificationState extends State<SelectedNotification> {
     );
     //configura o AlertDialog
     AlertDialog alert = AlertDialog(
-      title: const Text("Confirm"),
+      title: const Text("Atenção"),
       content: Text(content),
       actions: [
         cancelaButton,
-        continuaButton,
+        if (item.zones.isNotEmpty) continuaButton,
       ],
     );
     //exibe o diálogo
@@ -231,7 +246,9 @@ class _SelectedNotificationState extends State<SelectedNotification> {
           scale: 1.2,
           child: Checkbox(
             value: item.zones.contains(zone.id),
-            onChanged: (value) => changeZones(zone.id),
+            onChanged: item.zones.contains(idTodas) && zone.id != idTodas
+                ? (value) {}
+                : (value) => changeZones(zone.id),
             fillColor: MaterialStateProperty.resolveWith<Color>(
                 (Set<MaterialState> states) {
               if (states.contains(MaterialState.disabled)) {
@@ -298,8 +315,12 @@ class _SelectedNotificationState extends State<SelectedNotification> {
               color: Colors.blue,
             ),
             label: 'Notificar',
-            onTap: () =>
-                showAlertDialog(context, enviar, 'Enviar esta notificação?'),
+            onTap: () => showAlertDialog(
+                context,
+                enviar,
+                item.zones.isNotEmpty
+                    ? 'Enviar esta notificação?'
+                    : 'Você precisa selecionar pelo menos uma Regional!'),
           ),
         ],
       ),
@@ -361,6 +382,7 @@ class _SelectedNotificationState extends State<SelectedNotification> {
   }
 
   void enviar() {
+    conditionals.clear();
     zonesList.forEach((element) {
       if (item.zones.contains(element.id)) {
         addConditionals(element.id);
