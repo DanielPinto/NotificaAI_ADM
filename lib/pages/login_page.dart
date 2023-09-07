@@ -1,3 +1,4 @@
+import 'package:appnotify_adm/Data/database_helper.dart';
 import 'package:appnotify_adm/routes/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final dbHelper = DatabaseHelper.instance;
   TextEditingController emailAddress = TextEditingController();
   TextEditingController password = TextEditingController();
   String alert = "";
@@ -46,6 +48,9 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       if (status) {
+        var id = await _inserir(emailAddress.text, password.text);
+        print("STATUS: " + id.toString());
+
         Navigator.of(Routes.navigatorKey!.currentContext!)
             .pushReplacementNamed('/notificacao');
       } else {
@@ -108,6 +113,19 @@ class _LoginPageState extends State<LoginPage> {
             label: 'FECHAR', onPressed: scaffold.hideCurrentSnackBar),
       ),
     );
+  }
+
+  Future<int> _inserir(String inserirEmail, String inserirPassword) async {
+    var deleted = await dbHelper.cleantable();
+
+    print("DELETADO: $deleted");
+    // linha para incluir
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnEmail: inserirEmail,
+      DatabaseHelper.columnPassword: inserirPassword
+    };
+    final status = await dbHelper.insert(row);
+    return status;
   }
 
   @override

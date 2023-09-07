@@ -1,3 +1,4 @@
+import 'package:appnotify_adm/Data/database_helper.dart';
 import 'package:appnotify_adm/models/item.dart';
 import 'package:appnotify_adm/pages/notificationsPage/form_notifications_page.dart';
 import 'package:appnotify_adm/pages/selectedNotification/selected_notification.dart';
@@ -18,10 +19,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
       FirebaseFirestore.instance.collection('notifications');
   bool progress = false;
   late BuildContext pageContext;
+  final dbHelper = DatabaseHelper.instance;
 
-  logout() async => await FirebaseAuth.instance.signOut().whenComplete(() =>
-      Navigator.of(Routes.navigatorKey!.currentContext!)
-          .pushReplacementNamed('/login'));
+  logout() async {
+    var deleted = await dbHelper.cleantable();
+
+    print("DELETADO: $deleted");
+
+    await FirebaseAuth.instance.signOut().whenComplete(() =>
+        Navigator.of(Routes.navigatorKey!.currentContext!)
+            .pushReplacementNamed('/login'));
+  }
 
   Stream<List<Item>> readItens() =>
       instanceNotifications.snapshots().map((snapshot) =>

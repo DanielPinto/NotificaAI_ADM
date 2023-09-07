@@ -23,7 +23,7 @@ class _FormNotificationPageState extends State<FormNotificationPage> {
   TextEditingController descriptionController = TextEditingController();
   String alert = "";
   bool progress = false;
-  final String buttonTitle = "ENVIAR";
+  final String buttonTitle = "SALVAR";
 
   post() {
     if (anyControllerClear()) {
